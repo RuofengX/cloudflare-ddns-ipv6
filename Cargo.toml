@@ -1,0 +1,21 @@
+[package]
+name = "cloudflare-ddns-ipv6"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+pnet = { version = "0.35.0", default-features = false, features = ["std"] }
+reqwest = { version = "0.12.14", default-features = false, features = [
+    "blocking",
+    "json",
+    "rustls-tls",
+] }
+serde = "1.0.219"
+serde_derive = "1.0.219"
+serde_json = "1.0.140"
+
+[profile.release]
+codegen-units = 1
+lto = true
+strip = true
+opt-level = "z"
