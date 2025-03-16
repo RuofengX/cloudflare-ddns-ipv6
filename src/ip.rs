@@ -27,9 +27,6 @@ pub fn get_ipv6() -> Result<String, String> {
             if ip.is_unicast_link_local() {
                 return None;
             }
-            if x.prefix() != 128 {
-                return None;
-            }
             Some(ip)
         })
         .collect();
