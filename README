@@ -1,0 +1,23 @@
+# Cloudflare DDNS IPv6
+
+## How to use
+
+This program uses environment to config user's bearer token, zone and domain record.
+
+There three config environment variables:
+
+* CF_BEARER_KEY  
+  The API key. You should get one on cloudflare web dashboard.
+* CF_ZONE  
+  The name of cloudflare's zone. Default is your root domain.
+  For example "yourhomelab.com"
+* CF_DOMAIN  
+  The final domain that your want change.
+  For example "nas.yourhomelab.com"
+
+The program will use system call to search every net interfaces on the system,
+and then detect every IPv6 address of each interface.  
+It would yield first public IPv6 address (stop the search) and
+use the environment variables call the cloudflare api to set that record.  
+
+For more detail, please refer to the source code.

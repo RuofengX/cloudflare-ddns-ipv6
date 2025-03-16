@@ -1,12 +1,13 @@
 use std::net::Ipv6Addr;
 
+use log::info;
 use pnet::ipnetwork::IpNetwork;
 
 pub fn get_ipv6() -> Result<String, String> {
     let ret: Vec<Ipv6Addr> = pnet::datalink::interfaces()
         .iter()
         .map(|x| {
-            println!("I: > checking device: {}", x.name);
+            info!("checking device: {}", x.name);
             x
         })
         .map(|interface| &interface.ips)
@@ -16,7 +17,7 @@ pub fn get_ipv6() -> Result<String, String> {
             _ => None,
         })
         .map(|x| {
-            println!("I: >> get ipv6 network: {}/{}", x.ip(), x.prefix());
+            info!("get ipv6 network: {}/{}", x.ip(), x.prefix());
             x
         })
         .filter_map(|x| {
@@ -32,9 +33,9 @@ pub fn get_ipv6() -> Result<String, String> {
         .collect();
 
     if ret.len() == 0 {
-        return Err("E: no IPv6 public addr found".to_string());
+        return Err("no IPv6 public addr found".to_string());
     }
     let ret = ret[0].to_string();
-    println!("I: found public ipv6 addr: {:?}", ret);
+    info!("found public ipv6 addr: {:?}", ret);
     Ok(ret)
 }
