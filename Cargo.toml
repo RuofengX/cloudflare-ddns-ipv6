@@ -2,6 +2,8 @@
 name = "cloudflare-ddns-ipv6"
 version = "0.1.0"
 edition = "2024"
+description = "a cmd line tool to update your cloudflare AAAA record"
+license = "GPL-3.0"
 
 [dependencies]
 colog = "1.3.0"
