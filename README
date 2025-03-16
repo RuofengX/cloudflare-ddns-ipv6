@@ -21,3 +21,7 @@ It would yield first public IPv6 address (stop the search) and
 use the environment variables call the cloudflare api to set that record.  
 
 For more detail, please refer to the source code.
+
+## Docker usage
+
+When use docker/podman, please ensure network is running under host mode.
