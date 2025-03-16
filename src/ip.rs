@@ -4,7 +4,7 @@ use log::info;
 use pnet::ipnetwork::IpNetwork;
 
 pub fn get_ipv6() -> Result<String, String> {
-    let ret: Vec<Ipv6Addr> = pnet::datalink::interfaces()
+    let ret = pnet::datalink::interfaces()
         .iter()
         .map(|x| {
             info!("checking device: {}", x.name);
@@ -30,12 +30,13 @@ pub fn get_ipv6() -> Result<String, String> {
             }
             Some(ip)
         })
-        .collect();
+        .map(|x|x.to_string())
+        .next();
 
-    if ret.len() == 0 {
+    if ret.is_none() {
         return Err("no IPv6 public addr found".to_string());
     }
-    let ret = ret[0].to_string();
+    let ret = ret.unwrap();
     info!("found public ipv6 addr: {:?}", ret);
     Ok(ret)
 }
