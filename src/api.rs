@@ -59,7 +59,6 @@ pub fn get_zone_id_by_name(api_key: &str, name: &str) -> Result<String, String> 
         .filter_map(|z| if z.name == name { Some(z.id) } else { None })
         .next()
         .map(|x| {
-            info!("zone id is: {x}");
             x
         })
         .ok_or(format!("zone id of name: {name} not found"))
@@ -98,7 +97,6 @@ fn get_record_id_by_domain(
         .into_iter()
         .filter_map(|r| if r.name == domain { Some(r.id) } else { None })
         .map(|x| {
-            info!("record id is: {x}");
             x
         })
         .next();
@@ -126,19 +124,24 @@ impl RecordDesc {
 }
 pub fn ensure_record(
     api_key: &str,
-    zone_id: &str,
+    zone: &str,
     domain: &str,
     content: &str,
 ) -> Result<Record, String> {
+    let zone_id = get_zone_id_by_name(api_key, zone)?;
+    info!("zone id is: {zone_id}");
     let body = RecordDesc::new_v6(domain, content);
     let body = serde_json::to_string(&body)
         .map_err(|e| format!("encoding record error: {e}"))?
         .into();
     let resp: CommonResponse<Record> =
-        if let Some(record_id) = get_record_id_by_domain(api_key, zone_id, domain)? {
+        if let Some(record_id) = get_record_id_by_domain(api_key, &zone_id, domain)? {
+            info!("record id is: {record_id}");
+            info!("update existing record");
             let path = format!("zones/{zone_id}/dns_records/{record_id}");
             cf_api(api_key, Method::PUT, &path, Some(body))?
         } else {
+            info!("create new record");
             let path = format!("zones/{zone_id}/dns_records");
             cf_api(api_key, Method::POST, &path, Some(body))?
         };
