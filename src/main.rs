@@ -16,7 +16,7 @@ fn update(api_key: &str, zone: &str, domain: &str) -> Result<(), String> {
 }
 
 fn main() -> Result<(), String> {
-    colog::init();
+    simple_logger::init_with_level(log::Level::Info).unwrap();
 
     let config = config::Config::from_env()?;
     let api_key = &config.bearer_key;

@@ -1,2 +1,2 @@
 cargo clean
-podman build -t cloudflare-ddns-ipv6:latest .
+podman build -f Dockerfile-cn -t cloudflare-ddns-ipv6:latest .
