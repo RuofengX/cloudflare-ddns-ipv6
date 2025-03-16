@@ -1,3 +1,4 @@
+use log::{debug, info};
 use reqwest::{Method, blocking::Body};
 use serde::de::DeserializeOwned;
 use serde_derive::{Deserialize, Serialize};
@@ -27,7 +28,7 @@ fn cf_api<T: DeserializeOwned>(
 }
 
 #[derive(Debug, Deserialize)]
-struct CommonResponse<T> {
+struct CommonResponse<T: std::fmt::Debug> {
     success: bool,
     errors: Vec<String>,
     result: Option<T>,
@@ -40,8 +41,10 @@ pub struct Zone {
 }
 
 fn list_zones(api_key: &str) -> Result<Vec<Zone>, String> {
+    info!("request cloudflare zone list");
     let resp: CommonResponse<Vec<Zone>> = cf_api(api_key, Method::GET, "zones", None)?;
     if resp.success {
+        debug!("response: {:#?}", resp);
         Ok(resp.result.unwrap())
     } else {
         Err(format!("{:?}", resp.errors))
@@ -50,11 +53,16 @@ fn list_zones(api_key: &str) -> Result<Vec<Zone>, String> {
 
 pub fn get_zone_id_by_name(api_key: &str, name: &str) -> Result<String, String> {
     let zones = list_zones(api_key)?;
+    info!("find zone id by name: {name}");
     zones
         .into_iter()
         .filter_map(|z| if z.name == name { Some(z.id) } else { None })
         .next()
-        .ok_or(format!("zone(domain) name {name} not found"))
+        .map(|x| {
+            info!("zone id is: {x}");
+            x
+        })
+        .ok_or(format!("zone id of name: {name} not found"))
 }
 
 #[allow(unused)]
@@ -69,8 +77,10 @@ pub struct Record {
 
 fn list_records(api_key: &str, zone_id: &str) -> Result<Vec<Record>, String> {
     let path = format!("zones/{zone_id}/dns_records");
+    info!("request cloudflare dns record list for zone_id: {zone_id}");
     let resp: CommonResponse<Vec<Record>> = cf_api(api_key, Method::GET, &path, None)?;
     if resp.success {
+        debug!("response: {:#?}", resp);
         Ok(resp.result.unwrap())
     } else {
         Err(format!("{:?}", resp.errors))
@@ -83,9 +93,14 @@ fn get_record_id_by_domain(
     domain: &str,
 ) -> Result<Option<String>, String> {
     let records = list_records(api_key, zone_id)?;
+    info!("find record id by domain: {domain}");
     let ret = records
         .into_iter()
         .filter_map(|r| if r.name == domain { Some(r.id) } else { None })
+        .map(|x| {
+            info!("record id is: {x}");
+            x
+        })
         .next();
     Ok(ret)
 }
